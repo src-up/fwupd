@@ -67,13 +67,19 @@ meson setup build \
 echo "== Building =="
 ninja -C build
 
-# --- Optional: staging install + tarball ---
+# --- Optional: staging install + tarball (relocatable under /opt) ---
 if [ "$CREATE_TARBALL" -eq 1 ]; then
-  echo "== Creating install tarball =="
-  rm -rf build/install-staging
-  DESTDIR="$REPO_ROOT/build/install-staging" ninja -C build install
-  ( cd build/install-staging && tar cvf ../fwupd-trace-install.tar usr )
-  echo "Done. Tarball: build/fwupd-trace-install.tar"
+  echo "== Creating relocatable install tarball =="
+  rm -rf build/install-staging build/build-opt
+  mkdir -p build/build-opt
+  meson setup build/build-opt \
+    --prefix=/opt/fwupd-trace \
+    --libdir=lib64 \
+    -Dsystemd=disabled
+  ninja -C build/build-opt
+  DESTDIR="$REPO_ROOT/build/install-staging" ninja -C build/build-opt install
+  ( cd build/install-staging && tar cvf ../fwupd-trace-install.tar opt )
+  echo "Done. Tarball: build/fwupd-trace-install.tar (extracts to /opt/fwupd-trace, does not touch /usr)"
 fi
 
 echo "== Build complete =="
