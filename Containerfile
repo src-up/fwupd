@@ -12,6 +12,10 @@
 
 FROM quay.io/centos/centos:stream10
 
+# Enable CRB (CodeReady Builder) and EPEL so meson, ninja, and -devel packages are available.
+RUN dnf install -y dnf-plugins-core epel-release \
+    && dnf config-manager --set-enabled crb
+
 RUN dnf install -y \
     meson ninja-build gcc gcc-c++ \
     glib2-devel libxmlb-devel libjcat-devel libcurl-devel sqlite-devel \
