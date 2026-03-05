@@ -61,8 +61,7 @@ rm -rf build
 meson setup build \
   --prefix=/usr \
   --libdir=lib64 \
-  -Dsystemd=enabled \
-  -Dudev_rulesdir=/usr/lib/udev/rules.d
+  -Dsystemd=enabled
 
 # --- Build ---
 echo "== Building =="
