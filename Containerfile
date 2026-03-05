@@ -1,7 +1,7 @@
 # Build fwupd trace tarball in a RHEL 10–matching environment.
 # Run from fwupd repo root:
-#   docker build -f Containerfile -t fwupd-trace-builder .
-#   docker run --rm -v "$(pwd)":/fwupd fwupd-trace-builder
+#   podman build -f Containerfile -t fwupd-trace-builder .
+#   podman run --rm -v "$(pwd)":/fwupd fwupd-trace-builder
 # Tarball ends up in ./build/fwupd-trace-install.tar
 #
 # UBI 10 lacks many -devel packages in its repos (libxmlb-devel, libjcat-devel, etc.),
@@ -20,9 +20,9 @@ RUN dnf install -y \
     meson ninja-build gcc gcc-c++ \
     glib2-devel libxmlb-devel libjcat-devel libcurl-devel sqlite-devel \
     libgusb-devel polkit-devel libcbor-devel \
-    libarchive-devel libgcab-devel libgudev-devel \
-    libxml2-devel json-glib-devel libsoup-devel \
-    systemd-devel libelf-devel \
+    libarchive-devel libgcab1-devel libgudev-devel \
+    libxml2-devel json-glib-devel libsoup3-devel \
+    systemd-devel elfutils-libelf-devel \
     && dnf clean all
 
 WORKDIR /fwupd
