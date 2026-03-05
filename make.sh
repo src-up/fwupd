@@ -75,7 +75,8 @@ if [ "$CREATE_TARBALL" -eq 1 ]; then
   meson setup build/build-opt \
     --prefix=/opt/fwupd-trace \
     --libdir=lib64 \
-    -Dsystemd=disabled
+    -Dsystemd=disabled \
+    -Dpassim=disabled
   ninja -C build/build-opt
   DESTDIR="$REPO_ROOT/build/install-staging" ninja -C build/build-opt install
   ( cd build/install-staging && tar cvf ../fwupd-trace-install.tar opt )
