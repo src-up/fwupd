@@ -12,9 +12,10 @@
 
 FROM registry.access.redhat.com/ubi10/ubi
 
-# EPEL 10 for additional packages (meson, ninja, many -devel).
+# EPEL 10 + CRB (CodeReady Builder); EPEL recommends "crb enable" for many packages.
 RUN dnf install -y \
     https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm \
+    && crb enable \
     && dnf clean all
 
 RUN dnf install -y \
