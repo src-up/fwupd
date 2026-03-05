@@ -4,17 +4,18 @@
 #   podman run --rm -v "$(pwd)":/fwupd fwupd-trace-builder
 # Tarball ends up in ./build/fwupd-trace-install.tar
 #
-# UBI 10 lacks many -devel packages in its repos (libxmlb-devel, libjcat-devel, etc.),
-# so the dnf install step fails. Use an image with full repos instead.
-# FROM registry.access.redhat.com/ubi10/ubi
+# CentOS Stream 10: libcbor-devel is not in BaseOS, AppStream, CRB, or EPEL 10,
+# so "dnf install" fails. Switched to UBI 10 + EPEL 10 to try that repo set.
+# FROM quay.io/centos/centos:stream10
 #
-# CentOS Stream 10 = RHEL 10 preview, full repos.
+# UBI 10 (RHEL 10 userland) + EPEL 10.
 
-FROM quay.io/centos/centos:stream10
+FROM registry.access.redhat.com/ubi10/ubi
 
-# Enable CRB (CodeReady Builder) and EPEL so meson, ninja, and -devel packages are available.
-RUN dnf install -y dnf-plugins-core epel-release \
-    && dnf config-manager --set-enabled crb
+# EPEL 10 for additional packages (meson, ninja, many -devel).
+RUN dnf install -y \
+    https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm \
+    && dnf clean all
 
 RUN dnf install -y \
     meson ninja-build gcc gcc-c++ \
