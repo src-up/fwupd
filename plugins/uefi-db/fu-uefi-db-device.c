@@ -80,6 +80,13 @@ fu_uefi_db_device_write_firmware(FuDevice *device,
 		    FU_EFI_VARIABLE_ATTR_RUNTIME_ACCESS | FU_EFI_VARIABLE_ATTR_BOOTSERVICE_ACCESS |
 		    FU_EFI_VARIABLE_ATTR_NON_VOLATILE,
 		error)) {
+		if (g_getenv("FWUPD_TRACE") && error != NULL && *error != NULL) {
+			g_printerr("[FWUPD_TRACE] uefi-db write_firmware FAILED: device=%s id=%s fw_size=%" G_GSIZE_FORMAT " error=%s\n",
+				   fu_device_get_name(device),
+				   fu_device_get_id(device),
+				   g_bytes_get_size(fw),
+				   (*error)->message);
+		}
 		return FALSE;
 	}
 

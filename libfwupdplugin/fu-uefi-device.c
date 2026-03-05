@@ -140,8 +140,13 @@ fu_uefi_device_set_efivar_bytes(FuUefiDevice *self,
 		event = fu_device_save_event(FU_DEVICE(self), event_id);
 
 	/* set */
-	if (!fu_efivars_set_data_bytes(fu_context_get_efivars(ctx), guid, name, bytes, attr, error))
+	if (!fu_efivars_set_data_bytes(fu_context_get_efivars(ctx), guid, name, bytes, attr, error)) {
+		if (g_getenv("FWUPD_TRACE") && error != NULL && *error != NULL) {
+			g_printerr("[FWUPD_TRACE] fu_uefi_device_set_efivar_bytes FAILED: guid=%s name=%s bytes_size=%" G_GSIZE_FORMAT " attr=0x%x error=%s\n",
+				   guid, name, g_bytes_get_size(bytes), attr, (*error)->message);
+		}
 		return FALSE;
+	}
 
 	/* save response */
 	if (event != NULL)

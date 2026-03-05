@@ -3526,6 +3526,14 @@ fu_engine_write_firmware(FuEngine *self,
 		g_autoptr(GError) error_attach = NULL;
 		g_autoptr(GError) error_cleanup = NULL;
 
+		if (g_getenv("FWUPD_TRACE")) {
+			g_printerr("[FWUPD_TRACE] fu_engine_write_firmware FAILED: device_id=%s device_plugin=%s firmware_filename=%s error=%s\n",
+				   device_id,
+				   fu_device_get_plugin(device),
+				   fu_firmware_get_filename(firmware) != NULL ? fu_firmware_get_filename(firmware) : "(null)",
+				   error_write->message);
+		}
+
 		if (g_error_matches(error_write, FWUPD_ERROR, FWUPD_ERROR_AC_POWER_REQUIRED) ||
 		    g_error_matches(error_write, FWUPD_ERROR, FWUPD_ERROR_BATTERY_LEVEL_TOO_LOW) ||
 		    g_error_matches(error_write, FWUPD_ERROR, FWUPD_ERROR_NEEDS_USER_ACTION) ||

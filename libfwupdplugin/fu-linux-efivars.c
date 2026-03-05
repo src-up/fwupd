@@ -535,6 +535,10 @@ fu_linux_efivars_set_data(FuEfivars *efivars,
 		open_wflags |= O_APPEND;
 	fd = open(fn, open_wflags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	if (fd < 0) {
+		if (g_getenv("FWUPD_TRACE")) {
+			g_printerr("[FWUPD_TRACE] efivarsfs set_data OPEN FAILED: path=%s errno=%d (%s)\n",
+				   fn, errno, strerror(errno));
+		}
 		g_set_error(error,
 			    FWUPD_ERROR,
 			    FWUPD_ERROR_INVALID_DATA,
@@ -546,7 +550,19 @@ fu_linux_efivars_set_data(FuEfivars *efivars,
 	ostr = g_unix_output_stream_new(fd, TRUE);
 	memcpy(buf, &attr, sizeof(attr));     /* nocheck:blocked */
 	memcpy(buf + sizeof(attr), data, sz); /* nocheck:blocked */
+
+	if (g_getenv("FWUPD_TRACE")) {
+		g_autofree gchar *trace_msg = g_strdup_printf(
+		    "[FWUPD_TRACE] efivarsfs set_data: path=%s guid=%s name=%s data_sz=%" G_GSIZE_FORMAT " total_sz=%" G_GSIZE_FORMAT " attr=0x%x\n",
+		    fn, guid, name, sz, sizeof(attr) + sz, attr);
+		g_printerr("%s", trace_msg);
+	}
+
 	if (g_output_stream_write(ostr, buf, sizeof(attr) + sz, NULL, error) < 0) {
+		if (g_getenv("FWUPD_TRACE") && error != NULL && *error != NULL) {
+			g_printerr("[FWUPD_TRACE] efivarsfs set_data FAILED: path=%s guid=%s name=%s data_sz=%" G_GSIZE_FORMAT " total_sz=%" G_GSIZE_FORMAT " errno=%d (%s) error=%s\n",
+				  fn, guid, name, sz, sizeof(attr) + sz, errno, strerror(errno), (*error)->message);
+		}
 		g_prefix_error_literal(error, "failed to write data to efivarsfs: ");
 		fwupd_error_convert(error);
 		return FALSE;

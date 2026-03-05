@@ -380,7 +380,14 @@ fu_efivars_set_data(FuEfivars *self,
 		g_set_error_literal(error, FWUPD_ERROR, FWUPD_ERROR_NOT_SUPPORTED, "not supported");
 		return FALSE;
 	}
-	return efivars_class->set_data(self, guid, name, data, sz, attr, error);
+	if (!efivars_class->set_data(self, guid, name, data, sz, attr, error)) {
+		if (g_getenv("FWUPD_TRACE") && error != NULL && *error != NULL) {
+			g_printerr("[FWUPD_TRACE] fu_efivars_set_data FAILED: guid=%s name=%s sz=%" G_GSIZE_FORMAT " attr=0x%x error=%s\n",
+				   guid, name, sz, attr, (*error)->message);
+		}
+		return FALSE;
+	}
+	return TRUE;
 }
 
 /**
@@ -416,7 +423,14 @@ fu_efivars_set_data_bytes(FuEfivars *self,
 	g_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
 	buf = g_bytes_get_data(bytes, &bufsz);
-	return fu_efivars_set_data(self, guid, name, buf, bufsz, attr, error);
+	if (!fu_efivars_set_data(self, guid, name, buf, bufsz, attr, error)) {
+		if (g_getenv("FWUPD_TRACE") && error != NULL && *error != NULL) {
+			g_printerr("[FWUPD_TRACE] fu_efivars_set_data_bytes FAILED: guid=%s name=%s bufsz=%" G_GSIZE_FORMAT " attr=0x%x error=%s\n",
+				   guid, name, bufsz, attr, (*error)->message);
+		}
+		return FALSE;
+	}
+	return TRUE;
 }
 
 /**
